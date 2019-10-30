@@ -76,7 +76,7 @@ public final class TransparencyTest extends JPanel {
     gP.drawImage(redSquare, 0, 0, null);
     gP.setColor(Color.black);
     gP.setComposite(AlphaComposite.SrcOver);
-    gP.drawRect(1, 1, diameter - 2, diameter - 2);
+    gP.drawRect(1, 1, diameter - 3, diameter - 3);
 
     gP.dispose();
     
