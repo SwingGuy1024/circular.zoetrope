@@ -30,7 +30,7 @@ public final class TransparencyTest extends JPanel {
 
   public static void main(String[] args) {
     //noinspection HardCodedStringLiteral
-    JFrame frame = new JFrame("Red Source with Blue Destination");
+    JFrame frame = new JFrame("Blue Source with Red Destination");
     frame.setLocationByPlatform(true);
     frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     frame.add(new TransparencyTest());
@@ -39,7 +39,7 @@ public final class TransparencyTest extends JPanel {
   }
   
   private TransparencyTest() {
-    super(new GridLayout(1, 0));
+    super(new GridLayout(1, 0, 6, 6));
     setOpaque(false);
     for (Alpha alpha : Alpha.values()) {
       add(makeIcon(alpha));
@@ -48,10 +48,22 @@ public final class TransparencyTest extends JPanel {
   
   private JComponent makeIcon(Alpha alpha) {
 
-    BufferedImage picture = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
     int d2 = diameter / 2;
     final int d4 = diameter / 4;
-    Graphics2D gP = picture.createGraphics();
+
+    BufferedImage redSquare = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = redSquare.createGraphics();
+    g.setComposite(Src);
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+    Ellipse2D circle = new Ellipse2D.Double(d4, d4, d2, d2);
+    g.setColor(Color.blue);
+    g.fill(circle); // mask out circle
+
+    g.dispose();
+
+    BufferedImage blueCircle = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D gP = blueCircle.createGraphics();
     gP.setColor(Color.red);
     int delta = 4;
     int y = diameter/2;
@@ -60,35 +72,22 @@ public final class TransparencyTest extends JPanel {
     
 
 //    gP.setColor(Color.RED);
+    gP.setComposite(alpha.composite);
+    gP.drawImage(redSquare, 0, 0, null);
+    gP.setColor(Color.black);
+    gP.setComposite(AlphaComposite.SrcOver);
+    gP.drawRect(1, 1, diameter - 2, diameter - 2);
+
     gP.dispose();
     
-    BufferedImage image = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = image.createGraphics();
-    g.setComposite(Src);
-    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    
-//    int maskSize = diameter-4;
-
-    gP.fillRect(d4, d4, d2, d2);
-    Ellipse2D circle = new Ellipse2D.Double(d4, d4, d2, d2);
-    g.setColor(Color.blue);
-    g.fill(circle); // mask out circle
-
-    g.setComposite(alpha.composite);
-    g.drawImage(picture, 0, 0, null);
-    g.setColor(Color.black);
-    g.setComposite(AlphaComposite.SrcOver);
-    g.drawRect(1, 1, diameter - 2, diameter - 2);
-    g.dispose();
-    
     JPanel panel = new JPanel(new BorderLayout());
-    panel.add(new JLabel(new ImageIcon(image), JLabel.CENTER), BorderLayout.CENTER);
+    panel.add(new JLabel(new ImageIcon(blueCircle), JLabel.CENTER), BorderLayout.CENTER);
     panel.add(new JLabel(alpha.name, JLabel.CENTER), BorderLayout.PAGE_END);
 
     return panel;
   }
   
-  @SuppressWarnings({"HardCodedStringLiteral", "PublicField"})
+  @SuppressWarnings({"HardCodedStringLiteral", "PublicField", "unused"})
   private enum Alpha {
     ASrc(Src, "Src"),
     ASrcOver(SrcOver, "SrcOver"),
@@ -106,7 +105,8 @@ public final class TransparencyTest extends JPanel {
     
     public final AlphaComposite composite;
     public final String name;
-    private Alpha(AlphaComposite composite, String name) {
+
+    Alpha(AlphaComposite composite, String name) {
       this.composite = composite;
       this.name = name;
     }
