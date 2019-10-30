@@ -39,8 +39,8 @@ public final class TransparencyTest extends JPanel {
   }
   
   private TransparencyTest() {
-    super(new GridLayout(1, 0, 6, 6));
-    setOpaque(false);
+    super(new GridLayout(0, 5, 6, 6));
+    setBackground(Color.lightGray);
     for (Alpha alpha : Alpha.values()) {
       add(makeIcon(alpha));
     }
@@ -81,6 +81,7 @@ public final class TransparencyTest extends JPanel {
     gP.dispose();
     
     JPanel panel = new JPanel(new BorderLayout());
+    panel.setOpaque(false);
     panel.add(new JLabel(new ImageIcon(blueCircle), JLabel.CENTER), BorderLayout.CENTER);
     panel.add(new JLabel(alpha.name, JLabel.CENTER), BorderLayout.PAGE_END);
 
